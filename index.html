@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AquaLoop — Aquaponics Simulator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Sora:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="top">
+        <div class="brand">
+          <p class="kicker">Closed-loop ecology · Matter.js</p>
+          <h1>AquaLoop</h1>
+        </div>
+        <p class="lede">
+          A living 2D aquaponics lab. Pump water through copper pipe, grow plants on fish waste, and keep the nitrogen
+          cycle from running away.
+        </p>
+        <div class="actions">
+          <button type="button" id="btn-feed" class="btn primary">Feed fish</button>
+          <button type="button" id="btn-pause" class="btn" aria-pressed="false">Pause</button>
+          <button type="button" id="btn-reset" class="btn">Restart</button>
+        </div>
+      </header>
+
+      <div class="workspace">
+        <section class="stage" aria-label="Aquaponics world">
+          <canvas id="world" width="1100" height="760"></canvas>
+          <div id="status-banner" class="banner" data-level="good">
+            <strong id="status-title">Balanced loop</strong>
+            <span id="status-note">Fish waste is tracking plant uptake.</span>
+          </div>
+        </section>
+
+        <aside class="panel">
+          <section>
+            <h2>Live chemistry</h2>
+            <div class="stat">
+              <div class="stat-head"><span>Ammonia NH₃</span><strong id="v-nh3">0.12 mg/L</strong></div>
+              <div class="bar"><i id="bar-nh3"></i></div>
+            </div>
+            <div class="stat">
+              <div class="stat-head"><span>Nitrite NO₂</span><strong id="v-no2">0.04 mg/L</strong></div>
+              <div class="bar"><i id="bar-no2"></i></div>
+            </div>
+            <div class="stat">
+              <div class="stat-head"><span>Nitrate NO₃</span><strong id="v-no3">32 mg/L</strong></div>
+              <div class="bar"><i id="bar-no3"></i></div>
+            </div>
+            <div class="stat">
+              <div class="stat-head"><span>Dissolved O₂</span><strong id="v-o2">7.1 mg/L</strong></div>
+              <div class="bar"><i id="bar-o2"></i></div>
+            </div>
+            <div class="grid-2">
+              <div class="chip"><span>Temp</span><strong id="v-temp">26.5 °C</strong></div>
+              <div class="chip"><span>pH</span><strong id="v-ph">6.92</strong></div>
+              <div class="chip"><span>Flow</span><strong id="v-flow">720 L/h</strong></div>
+              <div class="chip"><span>Solids</span><strong id="v-solids">4.0 g</strong></div>
+            </div>
+          </section>
+
+          <section>
+            <h2>System</h2>
+            <div class="stat">
+              <div class="stat-head"><span>Fish health</span><strong id="v-health">92%</strong></div>
+              <div class="bar"><i id="bar-health"></i></div>
+            </div>
+            <div class="stat">
+              <div class="stat-head"><span>Loop efficiency</span><strong id="v-eff">84%</strong></div>
+              <div class="bar"><i id="bar-eff"></i></div>
+            </div>
+            <div class="chip wide"><span>Biofilm maturity</span><strong id="v-bact">75%</strong></div>
+            <div class="cycle" aria-label="Nitrogen cycle">
+              <div id="cycle-a" class="step">Fish → NH₃</div>
+              <div id="cycle-b" class="step">Nitrosomonas → NO₂</div>
+              <div id="cycle-c" class="step">Nitrobacter → NO₃</div>
+              <div id="cycle-d" class="step">Plants absorb</div>
+            </div>
+          </section>
+
+          <section>
+            <h2>Experiment</h2>
+            <label class="field">
+              <span>Preset</span>
+              <select id="preset">
+                <option value="established">Established loop</option>
+                <option value="newTank">New tank syndrome</option>
+                <option value="overstocked">Overstocked</option>
+                <option value="jungle">Plant-heavy</option>
+                <option value="pumpFail">Pump failure</option>
+                <option value="cold">Cold water</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Pump speed <em id="pump-val">72%</em></span>
+              <input id="pump" type="range" min="0" max="1" step="0.01" value="0.72" />
+            </label>
+            <label class="field">
+              <span>Fish population <em id="fish-val">7</em></span>
+              <input id="fish" type="range" min="1" max="18" step="1" value="7" />
+            </label>
+            <label class="field">
+              <span>Water volume <em id="volume-val">420 L</em></span>
+              <input id="volume" type="range" min="180" max="720" step="10" value="420" />
+            </label>
+            <label class="field">
+              <span>Plant quantity <em id="plant-val">8</em></span>
+              <input id="plants" type="range" min="2" max="16" step="1" value="8" />
+            </label>
+            <label class="field">
+              <span>Temperature <em id="temp-val">26.5 °C</em></span>
+              <input id="temp" type="range" min="18" max="32" step="0.5" value="26.5" />
+            </label>
+            <p class="hint">Space pause · R restart · F feed · drag bodies to stir the loop</p>
+          </section>
+        </aside>
+      </div>
+    </div>
+
+    <script src="vendor/matter.min.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/layout.js"></script>
+    <script src="js/biology.js"></script>
+    <script src="js/life.js"></script>
+    <script src="js/flow.js"></script>
+    <script src="js/world.js"></script>
+    <script src="js/render-fx.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/main.js"></script>
+  </body>
+</html>
